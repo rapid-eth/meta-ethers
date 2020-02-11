@@ -95,7 +95,7 @@ function runMetaMethod(contract, functionName) {
                 }
                 // Make sure they aren't overriding something they shouldn't
                 if (tx.from != null) {
-                    errors.throwError('cannot override from in a transaction', errors.UNSUPPORTED_OPERATION, { operation: 'sendTransaction' });
+                    errors.throwError('cannot override from in a transaction', errors.UNSUPPORTED_OPERATION, { operation: 'sendMetaTransaction' });
                 }
                 return contract.signer.signMetaTransaction(tx)
             }

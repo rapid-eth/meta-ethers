@@ -4,6 +4,7 @@ const shallowCopy = ethers.utils.shallowCopy
 const resolveProperties = ethers.utils.resolveProperties
 const hexlify = ethers.utils.hexlify
 const arrayify = ethers.utils.arrayify
+const id = ethers.utils.id
 const splitSignature = ethers.utils.splitSignature
 const solidityKeccak256 = ethers.utils.solidityKeccak256
 const RLP = ethers.utils.RLP
@@ -30,6 +31,8 @@ function populateMetaTransaction(transaction, provider, from) {
         //TODO
         console.log("please pass nonce in manually for now")
         //tx.nonce = provider.getTransactionCount(from);
+        var data = ethers.utils.id('nonces()').substring(0,10);
+        tx.nonce = provider.call({to: tx.to, data});
     }
     if (tx.chainId == null) {
         tx.chainId = provider.getNetwork().then(function (network) { return network.chainId; });
