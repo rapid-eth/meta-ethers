@@ -21,23 +21,36 @@ function populateMetaTransaction(transaction, provider, from) {
     }
     checkProperties(transaction, allowedMetaTransactionKeys);
     var tx = shallowCopy(transaction);
+    
     if (tx.to != null) {
-        tx.to = provider.resolveName(tx.to);
+        tx.to = provider.resolveName(tx.to).then(function(r) {return r});
     }
     if (tx.expiration == null) {
         tx.expiration = hexlify(9999999999)
     }
-    if (tx.nonce == null) {
-        //TODO
-        console.log("please pass nonce in manually for now")
-        //tx.nonce = provider.getTransactionCount(from);
-        var data = ethers.utils.id('nonces()').substring(0,10);
-        tx.nonce = provider.call({to: tx.to, data});
-    }
+    
     if (tx.chainId == null) {
         tx.chainId = provider.getNetwork().then(function (network) { return network.chainId; });
     }
-    return resolveProperties(tx);
+    // tx.from = from
+    return resolveProperties(tx).then(function(t) {
+        if (t.nonce == null) {
+            //TODO
+            //console.log("please pass nonce in manually for now")
+            //first call `to` contract to get metaproxy address
+            let data = ethers.utils.id('metaTxProxyContract()').substring(0,10)
+
+            return provider.call({to: t.to, data}).then(function(proxyContractAddress) {
+                let proxyAddress = defaultAbiCoder.decode(["address"], proxyContractAddress)
+                let dataSig = ethers.utils.id('nonces(address)').substring(0,10)
+                let dataParams = defaultAbiCoder.encode(["address"],[from]).substring(2)
+                let data = dataSig + dataParams
+                t.nonce = provider.call({to: proxyAddress[0], data})
+                return resolveProperties(t)
+            })
+        }
+        return t
+    });
 }
 
 class MetaWallet extends ethers.Wallet {
@@ -60,7 +73,7 @@ class MetaWallet extends ethers.Wallet {
             return _this.signMessage(arrayify(hash)).then(function (signature) {
                 let splitSig = splitSignature(signature)
                 let mtxArray = [
-                    hexlify(transaction.nonce),
+                    hexlify(tx.nonce),
                     tx.to,
                     tx.expiration,
                     tx.data,
