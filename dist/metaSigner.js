@@ -21,10 +21,22 @@ var {
 } = require('./utils');
 
 var Provider = ethers.providers.Provider;
+var _constructorGuard = {};
 
-class MetaWallet extends ethers.Wallet {
-  constructor(privateKey, provider) {
-    super(privateKey, provider);
+class MetaProvider extends ethers.providers.JsonRpcSigner {
+  constructor(url, network) {
+    super(url, network);
+
+    this.getMetaSigner = function (addressOrIndex) {
+      return new MetaSigner(_constructorGuard, this, addressOrIndex);
+    };
+  }
+
+}
+
+class MetaSigner extends ethers.providers.JsonRpcSigner {
+  constructor(constructorGuard, provider, addressOrIndex) {
+    super(constructorGuard, provider, addressOrIndex);
 
     this.isMetaSigner = function (value) {
       return isType(value, 'MetaSigner');
@@ -50,4 +62,5 @@ class MetaWallet extends ethers.Wallet {
 
 }
 
-exports.MetaWallet = MetaWallet;
+exports.MetaProvider = MetaProvider;
+exports.MetaSigner = MetaSigner;
