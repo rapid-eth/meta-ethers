@@ -1,5 +1,5 @@
 var ethers = require('ethers')
-var populateMetaTransaction = require('populateMetaTransaction')
+var populateMetaTransaction = require('./populateMetaTransaction')
 
 const checkProperties = ethers.utils.checkProperties
 const shallowCopy = ethers.utils.shallowCopy

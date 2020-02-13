@@ -2,7 +2,7 @@
 
 var ethers = require('ethers');
 
-var populateMetaTransaction = require('populateMetaTransaction');
+var populateMetaTransaction = require('./populateMetaTransaction');
 
 var checkProperties = ethers.utils.checkProperties;
 var shallowCopy = ethers.utils.shallowCopy;
