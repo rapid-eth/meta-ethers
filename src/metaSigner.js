@@ -1,6 +1,5 @@
 var ethers = require('ethers')
 var populateMetaTransaction = require('populateMetaTransaction')
-
 const checkProperties = ethers.utils.checkProperties
 const shallowCopy = ethers.utils.shallowCopy
 const resolveProperties = ethers.utils.resolveProperties
@@ -14,12 +13,26 @@ const defaultAbiCoder = ethers.utils.defaultAbiCoder
 const { setMetaType, allowedMetaTransactionKeys } = require('./utils')
 const Provider = ethers.providers.Provider
 
+var _constructorGuard = {};
+
+class MetaProvider extends ethers.providers.JsonRpcSigner {
+
+    constructor(url, network) {
+        super(url, network);
+    }
+
+    getMetaSigner = function (addressOrIndex) {
+        return new MetaSigner(_constructorGuard, this, addressOrIndex);
+    }
+}
 
 
-class MetaWallet extends ethers.Wallet {
 
-    constructor(privateKey, provider) {
-        super(privateKey,provider);
+
+class MetaSigner extends ethers.providers.JsonRpcSigner {
+
+    constructor(constructorGuard, provider, addressOrIndex) {
+        super(constructorGuard, provider, addressOrIndex);
         setMetaType(this, 'MetaSigner');
     }
 
@@ -53,4 +66,5 @@ class MetaWallet extends ethers.Wallet {
 
 }
 
-exports.MetaWallet = MetaWallet
+exports.MetaProvider = MetaProvider
+exports.MetaSigner = MetaSigner
