@@ -2,9 +2,10 @@
   "name": "meta-ethers",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cross-env BABEL_ENV=production babel src --out-dir dist"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,12 @@
   "homepage": "https://github.com/rapid-eth/meta-ethers#readme",
   "dependencies": {
     "ethers": "^4.0.44"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "cross-env": "^6.0.3"
   }
 }
