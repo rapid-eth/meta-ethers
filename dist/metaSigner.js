@@ -4,40 +4,33 @@ var ethers = require('ethers');
 
 var populateMetaTransaction = require('./populateMetaTransaction');
 
-var checkProperties = ethers.utils.checkProperties;
-var shallowCopy = ethers.utils.shallowCopy;
-var resolveProperties = ethers.utils.resolveProperties;
+var defineReadOnly = ethers.utils.defineReadOnly;
 var hexlify = ethers.utils.hexlify;
 var arrayify = ethers.utils.arrayify;
-var id = ethers.utils.id;
+var getAddress = ethers.utils.getAddress;
 var splitSignature = ethers.utils.splitSignature;
 var solidityKeccak256 = ethers.utils.solidityKeccak256;
-var RLP = ethers.utils.RLP;
 var defaultAbiCoder = ethers.utils.defaultAbiCoder;
 
 var {
-  setMetaType,
-  allowedMetaTransactionKeys
+  setMetaType
 } = require('./utils');
 
-var Provider = ethers.providers.Provider;
-var _constructorGuard = {};
+var toUtf8Bytes = ethers.utils.toUtf8Bytes;
 
-class MetaProvider extends ethers.providers.JsonRpcSigner {
+class MetaProvider extends ethers.providers.JsonRpcProvider {
   constructor(url, network) {
     super(url, network);
 
     this.getMetaSigner = function (addressOrIndex) {
-      return new MetaSigner(_constructorGuard, this, addressOrIndex);
+      return new MetaSigner(this, addressOrIndex);
     };
   }
 
 }
 
-class MetaSigner extends ethers.providers.JsonRpcSigner {
-  constructor(constructorGuard, provider, addressOrIndex) {
-    super(constructorGuard, provider, addressOrIndex);
-
+class MetaSigner {
+  constructor(provider, addressOrIndex) {
     this.isMetaSigner = function (value) {
       return isType(value, 'MetaSigner');
     };
@@ -57,7 +50,32 @@ class MetaSigner extends ethers.providers.JsonRpcSigner {
       });
     };
 
+    this.signMessage = function (message) {
+      var data = typeof message === 'string' ? toUtf8Bytes(message) : message;
+      return this.provider.send('eth_sign', [this.address.toLowerCase(), hexlify(data)]);
+    };
+
+    var _this2 = this;
+
+    defineReadOnly(_this2, 'provider', provider); // Statically attach to a given address
+
+    if (addressOrIndex) {
+      if (typeof addressOrIndex === 'string') {
+        defineReadOnly(_this2, 'address', getAddress(addressOrIndex));
+      } else if (typeof addressOrIndex === 'number') {
+        defineReadOnly(_this2, 'index', addressOrIndex);
+      } else {
+        errors.throwError('invalid address or index', errors.INVALID_ARGUMENT, {
+          argument: 'addressOrIndex',
+          value: addressOrIndex
+        });
+      }
+    } else {
+      defineReadOnly(_this2, 'index', 0);
+    }
+
     setMetaType(this, 'MetaSigner');
+    return _this2;
   }
 
 }
