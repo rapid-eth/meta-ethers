@@ -4,16 +4,12 @@ const checkProperties = ethers.utils.checkProperties
 const shallowCopy = ethers.utils.shallowCopy
 const resolveProperties = ethers.utils.resolveProperties
 const hexlify = ethers.utils.hexlify
-const arrayify = ethers.utils.arrayify
-const id = ethers.utils.id
-const splitSignature = ethers.utils.splitSignature
-const solidityKeccak256 = ethers.utils.solidityKeccak256
-const RLP = ethers.utils.RLP
 const defaultAbiCoder = ethers.utils.defaultAbiCoder
-const { setMetaType, allowedMetaTransactionKeys } = require('./utils')
+const { allowedMetaTransactionKeys } = require('./utils')
 const Provider = ethers.providers.Provider
 
 function populateMetaTransaction(transaction, provider, from) {
+    console.log("pop meta tx")
     if (!Provider.isProvider(provider)) {
         errors.throwError('missing provider', errors.INVALID_ARGUMENT, {
             argument: 'provider',
@@ -42,8 +38,10 @@ function populateMetaTransaction(transaction, provider, from) {
             let data = ethers.utils.id('metaTxProxyContract()').substring(0,10)
 
             return provider.call({to: t.to, data}).then(function(proxyContractAddress) {
+                console.log("proxadd", proxyContractAddress)
                 let proxyAddress = defaultAbiCoder.decode(["address"], proxyContractAddress)
                 let dataSig = ethers.utils.id('nonces(address)').substring(0,10)
+                console.log("fromm", from)
                 let dataParams = defaultAbiCoder.encode(["address"],[from]).substring(2)
                 let data = dataSig + dataParams
                 t.nonce = provider.call({to: proxyAddress[0], data})

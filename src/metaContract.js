@@ -122,7 +122,7 @@ class MetaContract {
             defineReadOnly(this, 'signer', signer);
         }
         else {
-            errors.throwError('invalid meta signer', errors.INVALID_ARGUMENT, { arg: 'signer', value: signer });
+            errors.throwError('invalid p meta signer', errors.INVALID_ARGUMENT, { arg: 'signer', value: signer });
         }
         defineReadOnly(this, 'functions', {});
         defineReadOnly(this, 'address', addressOrName);

@@ -6,21 +6,17 @@ var checkProperties = ethers.utils.checkProperties;
 var shallowCopy = ethers.utils.shallowCopy;
 var resolveProperties = ethers.utils.resolveProperties;
 var hexlify = ethers.utils.hexlify;
-var arrayify = ethers.utils.arrayify;
-var id = ethers.utils.id;
-var splitSignature = ethers.utils.splitSignature;
-var solidityKeccak256 = ethers.utils.solidityKeccak256;
-var RLP = ethers.utils.RLP;
 var defaultAbiCoder = ethers.utils.defaultAbiCoder;
 
 var {
-  setMetaType,
   allowedMetaTransactionKeys
 } = require('./utils');
 
 var Provider = ethers.providers.Provider;
 
 function populateMetaTransaction(transaction, provider, from) {
+  console.log("pop meta tx");
+
   if (!Provider.isProvider(provider)) {
     errors.throwError('missing provider', errors.INVALID_ARGUMENT, {
       argument: 'provider',
@@ -58,8 +54,10 @@ function populateMetaTransaction(transaction, provider, from) {
         to: t.to,
         data
       }).then(function (proxyContractAddress) {
+        console.log("proxadd", proxyContractAddress);
         var proxyAddress = defaultAbiCoder.decode(["address"], proxyContractAddress);
         var dataSig = ethers.utils.id('nonces(address)').substring(0, 10);
+        console.log("fromm", from);
         var dataParams = defaultAbiCoder.encode(["address"], [from]).substring(2);
         var data = dataSig + dataParams;
         t.nonce = provider.call({

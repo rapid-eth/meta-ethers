@@ -18,6 +18,8 @@ ethers.MetaContract = MetaContract;
 ethers.MetaWallet = MetaWallet;
 ethers.Wallet = ExtendedWallet;
 ethers.Contract = ExtendedContract;
-ethers.providers.JsonRpcProvider = MetaProvider;
-ethers.providers.JsonRpcSigner = MetaSigner;
-module.exports = ethers;
+ethers.providers.MetaProvider = MetaProvider;
+ethers.providers.MetaSigner = MetaSigner;
+module.exports = {
+  ethers
+};
